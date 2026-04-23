@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allowlist": [
+      "npm run dev",
+      "npm install",
+      "npm run build"
+    ]
+  }
+}

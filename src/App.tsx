@@ -1,11 +1,16 @@
-import { Button } from "@/components/ui/button"
+import { AppShell } from "@/components/layout/app-shell"
 
-function App() {
+export default function App() {
   return (
-    <div className="p-8">
-      <Button>Hello shadcn</Button>
-    </div>
+    <AppShell>
+      <div className="p-8">
+        <h1 className="text-2xl font-semibold text-[var(--foreground)]">
+          Main Content Area
+        </h1>
+        <p className="text-[var(--muted-foreground)] mt-2">
+          This is the main content area. The layout is ready to go.
+        </p>
+      </div>
+    </AppShell>
   )
 }
-
-export default App
