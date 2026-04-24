@@ -218,51 +218,13 @@ function HeaderSidebarToggle() {
 }
 
 /**
- * Default context-pane summary: sidebar toggle + project/branch
- * label + Ask Anaconda prompt.
+ * Default context-pane summary: Ask Anaconda prompt.
  */
 function DefaultContextSummary() {
-  const { activeKey, mode, setMode } = useAppShell()
-  const section = resolveNavSection(activeKey)
-  const navTitle = lookupNavTitle(activeKey)
+  const { mode, setMode } = useAppShell()
 
   return (
     <div className="flex h-full w-full items-stretch">
-      {/* Sidebar toggle lives on the brand thumbnail in the sidebar
-          header (see AppSidebar). Context pane no longer duplicates
-          the control — keeps the strip focused on "where you are"
-          rather than "how do I move the nav". */}
-
-      {/* Project / branch path or "Your platform" label. Formatting
-          mirrors the prototype-v4 project/branch picker trigger:
-          [project-icon] {project} / [branch-icon] {branch} [chevron]
-          Today this is a static display; the interactive picker
-          from prototype-v4 will be reintroduced here. */}
-      <div className="flex items-center gap-1.5 px-3">
-        {section === "configuration" || section === "security" || section === "compliance" || section === "platformHealth" ? (
-          <span className="text-sm font-medium text-foreground">
-            Admin Console
-          </span>
-        ) : section === "assetManagement" ? (
-          <>
-            <FolderIcon className="size-3.5 text-muted-foreground" />
-            <span className="max-w-[10rem] truncate text-sm font-medium text-foreground">
-              Asset Management
-            </span>
-            <span className="px-1 text-muted-foreground">/</span>
-            <GitBranchIcon className="size-3.5 text-muted-foreground" />
-            <span className="max-w-[8rem] truncate text-sm text-muted-foreground">
-              main
-            </span>
-            <ChevronDownIcon className="ml-1 size-3 text-muted-foreground" />
-          </>
-        ) : (
-          <span className="text-sm text-muted-foreground">
-            {navTitle ?? "Overview"}
-          </span>
-        )}
-      </div>
-
       {/* Flexible spacer — pushes Ask Anaconda to the right edge. */}
       <div className="flex-1" />
 
@@ -277,11 +239,11 @@ function DefaultContextSummary() {
           onClick={() => setMode("conversing")}
           className="group flex w-80 items-center gap-2 border-l px-3 text-left transition-colors hover:bg-accent/50"
         >
-          <AnacondaGlyph className="size-5 text-foreground" />
-          <span className="flex-1 text-sm text-muted-foreground">
+          <AnacondaGlyph className="size-4 text-foreground" />
+          <span className="flex-1 text-sm text-muted-foreground group-hover:text-foreground">
             Ask Anaconda…
           </span>
-          <kbd className="rounded border border-border bg-transparent px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+          <kbd className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
             /
           </kbd>
         </button>
@@ -291,15 +253,43 @@ function DefaultContextSummary() {
           onClick={() => setMode("focused")}
           className="group flex w-80 items-center gap-2 border-l px-3 text-left transition-colors hover:bg-accent/50"
         >
-          <Undo2Icon className="size-4 text-foreground" />
-          <span className="flex-1 text-sm text-muted-foreground">
+          <Undo2Icon className="size-4 text-muted-foreground group-hover:text-foreground" />
+          <span className="flex-1 text-sm text-muted-foreground group-hover:text-foreground">
             Return to dashboard
           </span>
-          <kbd className="rounded border border-border bg-transparent px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+          <kbd className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
             /
           </kbd>
         </button>
       )}
+    </div>
+  )
+}
+
+/**
+ * Default conversing-mode content: a placeholder NLUI surface.
+ */
+function DefaultContextConversing() {
+  const { setMode } = useAppShell()
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
+      <AnacondaGlyph className="size-10 text-foreground" />
+      <div className="text-center">
+        <h2 className="text-lg font-medium text-foreground">
+          Ask Anaconda anything
+        </h2>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">
+          This is where the NLUI goes — pass your own chat surface
+          via <code>contextConversing</code>. Press{" "}
+          <kbd className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+            /
+          </kbd>{" "}
+          to return to the app.
+        </p>
+      </div>
+      <Button variant="outline" size="sm" onClick={() => setMode("focused")}>
+        Close
+      </Button>
     </div>
   )
 }
@@ -375,33 +365,5 @@ function ContextUserMenu() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-/**
- * Default conversing-mode content: a placeholder NLUI surface.
- */
-function DefaultContextConversing() {
-  const { setMode } = useAppShell()
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
-      <AnacondaGlyph className="size-10 text-foreground" />
-      <div className="text-center">
-        <h2 className="text-lg font-medium text-foreground">
-          Ask Anaconda anything
-        </h2>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          This is where the NLUI goes — pass your own chat surface
-          via <code>contextConversing</code>. Press{" "}
-          <kbd className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
-            /
-          </kbd>{" "}
-          to return to the app.
-        </p>
-      </div>
-      <Button variant="outline" size="sm" onClick={() => setMode("focused")}>
-        Close
-      </Button>
-    </div>
   )
 }

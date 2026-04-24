@@ -10,6 +10,8 @@ import {
   type OnboardingStep,
 } from "@/components/templates"
 import { ComplianceReporting, PlatformHealth } from "@/pages"
+import { CloudProviderModal } from "@/components/CloudProviderModal"
+import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
 
 /**
  * Demo harness for the three canonical templates.
@@ -35,49 +37,74 @@ function OnboardingDemo({ onDone }: { onDone: () => void }) {
   const [cloudConnected, setCloudConnected] = useState(false)
   const [authConnected, setAuthConnected] = useState(false)
   const [perimetersConfigured, setPerimetersConfigured] = useState(false)
+  const [cloudModalOpen, setCloudModalOpen] = useState(false)
+  const [perimeterModalOpen, setPerimeterModalOpen] = useState(false)
 
   const steps: OnboardingStep[] = [
-    {
-      id: "cloud",
-      title: "Connect your cloud provider",
-      description: "Grant read access so we can index resources.",
-      isComplete: cloudConnected,
-      action: (
-        <Button size="sm" onClick={() => setCloudConnected(true)}>
-          Setup
-        </Button>
-      ),
-    },
     {
       id: "auth",
       title: "Integrate auth with WorkOS",
       description: "Wire up your identity provider.",
       isComplete: authConnected,
-      action: (
-        <Button size="sm" onClick={() => setAuthConnected(true)}>
-          Setup
-        </Button>
-      ),
+      action: () => {
+        window.open("https://explore.workos.com/app/settings", "_blank")
+        setAuthConnected(true)
+      },
+    },
+    {
+      id: "cloud",
+      title: "Connect your cloud provider",
+      description: "Grant read access so we can index resources.",
+      isComplete: cloudConnected,
+      optional: true,
+      action: () => setCloudModalOpen(true),
     },
     {
       id: "perimeters",
-      title: "Create perimeters",
+      title: "Configure perimeter",
       description:
         "Define the network boundaries your clusters can reach.",
       isComplete: perimetersConfigured,
-      action: (
-        <Button size="sm" onClick={() => setPerimetersConfigured(true)}>
-          Setup
-        </Button>
-      ),
+      optional: true,
+      action: () => setPerimeterModalOpen(true),
     },
   ]
+
+  // Conditional rendering: show modals when opened, otherwise show onboarding
+  if (cloudModalOpen) {
+    return (
+      <CloudProviderModal
+        onComplete={() => {
+          setCloudConnected(true)
+          setCloudModalOpen(false)
+        }}
+        onCancel={() => {
+          setCloudModalOpen(false)
+        }}
+      />
+    )
+  }
+
+  if (perimeterModalOpen) {
+    return (
+      <ConfigurePerimeterModal
+        onComplete={() => {
+          setPerimetersConfigured(true)
+          setPerimeterModalOpen(false)
+        }}
+        onCancel={() => {
+          setPerimeterModalOpen(false)
+        }}
+      />
+    )
+  }
 
   return (
     <OnboardingLayout
       title="Set up your workspace"
-      description="Complete these three steps to unlock the app."
+      description="Complete the WorkOS integration to get started."
       steps={steps}
+      requiredStepId="auth"
       onComplete={onDone}
     />
   )
