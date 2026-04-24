@@ -1,47 +1,247 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Custom variants + keyframes for Radix-driven open/close animations.
+ *
+ * Radix sets `data-state="open"` / `data-state="closed"` on primitives
+ * like Sheet, Dialog, DropdownMenu. We expose them as the short
+ * `data-open:` / `data-closed:` variants so component code can write
+ * `data-open:animate-in` without spelling out the full attribute
+ * selector every time.
+ *
+ * The keyframes below power the sheet's slide-from-right / fade
+ * animations. They are tuned to match the sidebar: 200ms with
+ * `ease-linear`, pure transform (no fade offset). See the
+ * `SheetContent` className in `components/ui/sheet.tsx`.
+ */
+@custom-variant data-open (&[data-state="open"]);
+@custom-variant data-closed (&[data-state="closed"]);
+
+@keyframes owl-slide-in-from-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes owl-slide-out-to-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+@keyframes owl-slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes owl-slide-out-to-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+@keyframes owl-slide-in-from-top {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes owl-slide-out-to-top {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-100%); }
+}
+@keyframes owl-slide-in-from-bottom {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes owl-slide-out-to-bottom {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+@keyframes owl-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes owl-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/*
+ * Greyscale theme for OWL.
+ *
+ * This file follows shadcn/ui's Tailwind v4 conventions:
+ *   - @theme inline maps Tailwind color utilities (bg-primary,
+ *     text-foreground, etc.) to CSS variables below.
+ *   - :root holds the light-mode palette. .dark inverts.
+ *   - All colors are neutral greys (HSL hue 0, saturation 0%) so the
+ *     app reads as a monochrome wireframe.
+ *
+ * Edit the CSS variables in :root / .dark to retune the palette.
+ * Do NOT change the @theme inline block — it is the bridge that lets
+ * stock shadcn components and blocks theme correctly.
+ */
+
+@theme inline {
+  /*
+   * Flatten every radius token to the single `--radius` value.
+   * The radix-luma shadcn style hardcodes `rounded-xl`, `rounded-2xl`,
+   * `rounded-4xl` (for pill buttons) across its components. Without
+   * this flattening, tweaking `--radius` alone is invisible. Mapping
+   * every step to `--radius` gives a single uniform corner radius
+   * across Cards, Buttons, Inputs, Sheet, Sidebar rows, etc.
+   * `rounded-full` (used for avatars) is NOT in this scale and stays
+   * fully rounded.
+   */
+  --radius-xs: var(--radius);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+
+  --background: hsl(0 0% 98%);
+  --foreground: hsl(0 0% 9%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 9%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 9%);
+
+  --primary: hsl(0 0% 15%);
+  --primary-foreground: hsl(0 0% 98%);
+
+  --secondary: hsl(0 0% 94%);
+  --secondary-foreground: hsl(0 0% 15%);
+
+  --muted: hsl(0 0% 94%);
+  --muted-foreground: hsl(0 0% 40%);
+
+  --accent: hsl(0 0% 94%);
+  --accent-foreground: hsl(0 0% 15%);
+
+  --destructive: hsl(0 70% 45%);
+  --destructive-foreground: hsl(0 0% 98%);
+
+  --border: hsl(0 0% 88%);
+  --input: hsl(0 0% 88%);
+  --ring: hsl(0 0% 60%);
+
+  --chart-1: hsl(0 0% 25%);
+  --chart-2: hsl(0 0% 40%);
+  --chart-3: hsl(0 0% 55%);
+  --chart-4: hsl(0 0% 70%);
+  --chart-5: hsl(0 0% 85%);
+
+  --sidebar: hsl(0 0% 96%);
+  --sidebar-foreground: hsl(0 0% 15%);
+  --sidebar-primary: hsl(0 0% 15%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(0 0% 92%);
+  --sidebar-accent-foreground: hsl(0 0% 15%);
+  --sidebar-border: hsl(0 0% 88%);
+  --sidebar-ring: hsl(0 0% 60%);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: hsl(0 0% 8%);
+  --foreground: hsl(0 0% 95%);
+
+  --card: hsl(0 0% 12%);
+  --card-foreground: hsl(0 0% 95%);
+
+  --popover: hsl(0 0% 12%);
+  --popover-foreground: hsl(0 0% 95%);
+
+  --primary: hsl(0 0% 90%);
+  --primary-foreground: hsl(0 0% 10%);
+
+  --secondary: hsl(0 0% 18%);
+  --secondary-foreground: hsl(0 0% 90%);
+
+  --muted: hsl(0 0% 18%);
+  --muted-foreground: hsl(0 0% 65%);
+
+  --accent: hsl(0 0% 22%);
+  --accent-foreground: hsl(0 0% 95%);
+
+  --destructive: hsl(0 62% 50%);
+  --destructive-foreground: hsl(0 0% 98%);
+
+  --border: hsl(0 0% 22%);
+  --input: hsl(0 0% 22%);
+  --ring: hsl(0 0% 55%);
+
+  --chart-1: hsl(0 0% 85%);
+  --chart-2: hsl(0 0% 70%);
+  --chart-3: hsl(0 0% 55%);
+  --chart-4: hsl(0 0% 40%);
+  --chart-5: hsl(0 0% 25%);
+
+  --sidebar: hsl(0 0% 10%);
+  --sidebar-foreground: hsl(0 0% 95%);
+  --sidebar-primary: hsl(0 0% 90%);
+  --sidebar-primary-foreground: hsl(0 0% 10%);
+  --sidebar-accent: hsl(0 0% 18%);
+  --sidebar-accent-foreground: hsl(0 0% 95%);
+  --sidebar-border: hsl(0 0% 22%);
+  --sidebar-ring: hsl(0 0% 55%);
+}
+
 @layer base {
-  :root {
-    color-scheme: light;
-    --background: hsl(0 0% 95%);
-    --foreground: hsl(0 0% 5%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 5%);
-    --primary: hsl(0 0% 20%);
-    --primary-foreground: hsl(0 0% 100%);
-    --secondary: hsl(0 0% 90%);
-    --secondary-foreground: hsl(0 0% 20%);
-    --muted: hsl(0 0% 90%);
-    --muted-foreground: hsl(0 0% 45%);
-    --border: hsl(0 0% 85%);
-    --input: hsl(0 0% 100%);
-    --ring: hsl(0 0% 20%);
-  }
-
-  .dark {
-    color-scheme: dark;
-    --background: hsl(0 0% 8%);
-    --foreground: hsl(0 0% 95%);
-    --card: hsl(0 0% 12%);
-    --card-foreground: hsl(0 0% 95%);
-    --primary: hsl(0 0% 90%);
-    --primary-foreground: hsl(0 0% 5%);
-    --secondary: hsl(0 0% 20%);
-    --secondary-foreground: hsl(0 0% 90%);
-    --muted: hsl(0 0% 20%);
-    --muted-foreground: hsl(0 0% 60%);
-    --border: hsl(0 0% 25%);
-    --input: hsl(0 0% 15%);
-    --ring: hsl(0 0% 90%);
-  }
-
   * {
-    border-color: var(--border);
+    @apply border-border outline-ring/50;
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   html {
