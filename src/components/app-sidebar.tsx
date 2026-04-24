@@ -14,6 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ import {
   CheckIcon,
   ChevronsUpDownIcon,
   MessageSquareIcon,
+  PanelLeftIcon,
   PlusIcon,
   TerminalIcon,
 } from "lucide-react"
@@ -187,21 +189,29 @@ export function AppSidebar({
   ...props
 }: AppSidebarProps) {
   const { mode } = useAppShell()
+  const { toggleSidebar } = useSidebar()
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <TerminalIcon className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Sleep Science Inc.</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </a>
+            {/* Brand row doubles as the sidebar toggle. Clicking the
+                thumbnail (or anywhere on the row) toggles the
+                sidebar. Hovering the thumbnail swaps the Terminal
+                glyph for a PanelLeft icon to cue the intent. */}
+            <SidebarMenuButton
+              size="lg"
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar"
+            >
+              <div className="group/brand-thumb relative flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <TerminalIcon className="size-4 transition-opacity duration-150 group-hover/brand-thumb:opacity-0" />
+                <PanelLeftIcon className="absolute inset-0 m-auto size-4 opacity-0 transition-opacity duration-150 group-hover/brand-thumb:opacity-100" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">Sleep Science Inc.</span>
+                <span className="truncate text-xs">Enterprise</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

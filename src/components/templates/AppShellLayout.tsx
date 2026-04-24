@@ -31,7 +31,6 @@ import {
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -42,6 +41,7 @@ import {
   GitBranchIcon,
   LogOutIcon,
   RocketIcon,
+  Undo2Icon,
 } from "lucide-react"
 
 /**
@@ -180,17 +180,17 @@ function DefaultContextSummary() {
 
   return (
     <div className="flex h-full w-full items-stretch">
-      {/* Sidebar toggle */}
-      <div className="flex items-center px-2">
-        <SidebarTrigger className="text-muted-foreground" />
-      </div>
+      {/* Sidebar toggle lives on the brand thumbnail in the sidebar
+          header (see AppSidebar). Context pane no longer duplicates
+          the control — keeps the strip focused on "where you are"
+          rather than "how do I move the nav". */}
 
       {/* Project / branch path or "Your platform" label. Formatting
           mirrors the prototype-v4 project/branch picker trigger:
           [project-icon] {project} / [branch-icon] {branch} [chevron]
           Today this is a static display; the interactive picker
           from prototype-v4 will be reintroduced here. */}
-      <div className="flex items-center gap-1.5 border-l px-3">
+      <div className="flex items-center gap-1.5 px-3">
         {section === "platform" ? (
           <span className="text-sm font-medium text-foreground">
             Your platform
@@ -218,17 +218,34 @@ function DefaultContextSummary() {
       {/* Flexible spacer — pushes Ask Anaconda to the right edge. */}
       <div className="flex-1" />
 
-      {/* Ask Anaconda — right-aligned section. Hidden in conversing
-          mode because the chat composer below replaces it. */}
-      {mode === "focused" && (
+      {/* Right-aligned mode control. In focused mode this is the
+          entry point ("Ask Anaconda…") — in conversing mode it
+          becomes the way back out ("Return to dashboard"). Same
+          slot, same keyboard hint, so the mode toggle has one
+          consistent home. */}
+      {mode === "focused" ? (
         <button
           type="button"
           onClick={() => setMode("conversing")}
           className="group flex w-80 items-center gap-2 border-l px-3 text-left transition-colors hover:bg-accent/50"
         >
-          <AnacondaGlyph className="size-4 text-foreground" />
+          <AnacondaGlyph className="size-5 text-foreground" />
           <span className="flex-1 text-sm text-muted-foreground">
             Ask Anaconda…
+          </span>
+          <kbd className="rounded border border-border bg-transparent px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+            /
+          </kbd>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setMode("focused")}
+          className="group flex w-80 items-center gap-2 border-l px-3 text-left transition-colors hover:bg-accent/50"
+        >
+          <Undo2Icon className="size-4 text-foreground" />
+          <span className="flex-1 text-sm text-muted-foreground">
+            Return to dashboard
           </span>
           <kbd className="rounded border border-border bg-transparent px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
             /
@@ -268,8 +285,13 @@ function ContextUserMenu() {
           aria-label={`Account menu for ${user.name}`}
           className="flex items-center justify-center border-l px-2.5 outline-none transition-colors hover:bg-accent/50 data-[state=open]:bg-accent focus-visible:ring-2 focus-visible:ring-ring/30"
         >
+          {/* Black circle + white initials gives the avatar enough
+              weight to read as a distinct section next to the Ask
+              Anaconda button, rather than a grey dot in a grey row. */}
           <Avatar className="size-7">
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-foreground text-background font-medium">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </button>
       </DropdownMenuTrigger>
@@ -281,7 +303,9 @@ function ContextUserMenu() {
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8">
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="bg-foreground text-background font-medium">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
