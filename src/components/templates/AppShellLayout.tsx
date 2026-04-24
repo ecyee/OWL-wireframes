@@ -42,6 +42,7 @@ import {
   GitBranchIcon,
   LogOutIcon,
   RocketIcon,
+  PanelLeftIcon,
 } from "lucide-react"
 
 /**
@@ -116,46 +117,63 @@ export function AppShellLayout({
   contextConversing,
 }: AppShellLayoutProps) {
   return (
-    <AppShellProvider activeKey={activeKey}>
-      <TooltipProvider delayDuration={200}>
-        <SidebarProvider defaultOpen={defaultSidebarOpen}>
-          <SidebarModeSync />
-          <AppSidebar activeKey={activeKey} onNavigate={onNavigate} />
-          <SidebarInset
-            // Strip the default `SidebarInset` card chrome (bg +
-            // rounded + shadow). Our two inner cards (ContextPane
-            // and ContentPane) are the only visible cards.
-            className="bg-transparent md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none"
-          >
-            <PaneStack>
-              <ContextPane>
-                <ContextPaneSummary>
-                  {contextSummary ?? <DefaultContextSummary />}
-                </ContextPaneSummary>
-                <ContextPaneConversing>
-                  {contextConversing ?? <DefaultContextConversing />}
-                </ContextPaneConversing>
-              </ContextPane>
-              <ContentPane>
-                <ContentPaneHeader>
-                  {title && (
-                    <h1 className="text-xl font-semibold tracking-tight text-foreground">
-                      {title}
-                    </h1>
-                  )}
-                  {headerActions && (
-                    <div className="ml-auto flex items-center gap-2">
-                      {headerActions}
-                    </div>
-                  )}
-                </ContentPaneHeader>
-                <ContentPaneBody>{children}</ContentPaneBody>
-              </ContentPane>
-            </PaneStack>
-          </SidebarInset>
-        </SidebarProvider>
-      </TooltipProvider>
-    </AppShellProvider>
+    <>
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center px-4 bg-sidebar">
+        <HeaderSidebarToggle />
+        <div className="flex items-center gap-2">
+          <AnacondaGlyph className="size-5" style={{ color: '#31A824' }} />
+          <h1 className="text-lg font-semibold text-foreground">Anaconda</h1>
+        </div>
+        <div className="ml-auto">
+          <ContextUserMenu />
+        </div>
+      </header>
+
+      {/* App Shell - positioned below header */}
+      <div className="fixed top-12 left-0 right-0 bottom-0 overflow-hidden">
+        <AppShellProvider activeKey={activeKey}>
+          <TooltipProvider delayDuration={200}>
+            <SidebarProvider defaultOpen={defaultSidebarOpen}>
+              <SidebarModeSync />
+              <AppSidebar activeKey={activeKey} onNavigate={onNavigate} />
+              <SidebarInset
+                // Strip the default `SidebarInset` card chrome (bg +
+                // rounded + shadow). Our two inner cards (ContextPane
+                // and ContentPane) are the only visible cards.
+                className="bg-transparent md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none pb-16 h-full"
+              >
+                <PaneStack className="h-full">
+                  <ContextPane>
+                    <ContextPaneSummary>
+                      {contextSummary ?? <DefaultContextSummary />}
+                    </ContextPaneSummary>
+                    <ContextPaneConversing>
+                      {contextConversing ?? <DefaultContextConversing />}
+                    </ContextPaneConversing>
+                  </ContextPane>
+                  <ContentPane>
+                    <ContentPaneHeader>
+                      {title && (
+                        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+                          {title}
+                        </h1>
+                      )}
+                      {headerActions && (
+                        <div className="ml-auto flex items-center gap-2">
+                          {headerActions}
+                        </div>
+                      )}
+                    </ContentPaneHeader>
+                    <ContentPaneBody>{children}</ContentPaneBody>
+                  </ContentPane>
+                </PaneStack>
+              </SidebarInset>
+            </SidebarProvider>
+          </TooltipProvider>
+        </AppShellProvider>
+      </div>
+    </>
   )
 }
 
@@ -170,6 +188,36 @@ function SidebarModeSync() {
 }
 
 /**
+ * Sidebar toggle button for the header that works outside SidebarProvider context.
+ * Uses a custom implementation to avoid layout disruption.
+ */
+function HeaderSidebarToggle() {
+  const [isOpen, setIsOpen] = React.useState(true)
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen)
+    // Trigger the keyboard shortcut that toggles the sidebar
+    const event = new KeyboardEvent('keydown', {
+      key: '.',
+      metaKey: true,
+      bubbles: true
+    })
+    window.dispatchEvent(event)
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleToggle}
+      className="mr-3 h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
+    >
+      <PanelLeftIcon className="size-4" />
+    </Button>
+  )
+}
+
+/**
  * Default context-pane summary: sidebar toggle + project/branch
  * label + Ask Anaconda prompt.
  */
@@ -180,17 +228,12 @@ function DefaultContextSummary() {
 
   return (
     <div className="flex h-full w-full items-stretch">
-      {/* Sidebar toggle */}
-      <div className="flex items-center px-2">
-        <SidebarTrigger className="text-muted-foreground" />
-      </div>
-
       {/* Project / branch path or "Your platform" label. Formatting
           mirrors the prototype-v4 project/branch picker trigger:
           [project-icon] {project} / [branch-icon] {branch} [chevron]
           Today this is a static display; the interactive picker
           from prototype-v4 will be reintroduced here. */}
-      <div className="flex items-center gap-1.5 border-l px-3">
+      <div className="flex items-center gap-1.5 px-3">
         {section === "platform" ? (
           <span className="text-sm font-medium text-foreground">
             Your platform
@@ -235,10 +278,6 @@ function DefaultContextSummary() {
           </kbd>
         </button>
       )}
-
-      {/* User avatar — far right, with its own border-l divider.
-          Clicking opens the account dropdown. */}
-      <ContextUserMenu />
     </div>
   )
 }
