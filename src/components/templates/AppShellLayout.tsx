@@ -40,6 +40,7 @@ import {
   FolderIcon,
   GitBranchIcon,
   LogOutIcon,
+  PanelLeftIcon,
   RocketIcon,
   Undo2Icon,
 } from "lucide-react"
