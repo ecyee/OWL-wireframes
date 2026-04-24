@@ -19,13 +19,10 @@ import {
 import { ChevronRightIcon } from "lucide-react"
 
 export function NavMain({
-  label = "Platform",
   items,
   activeKey,
   onNavigate,
 }: {
-  /** Sidebar group label shown above the items. */
-  label?: string
   items: {
     title: string
     url: string
@@ -49,18 +46,55 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            open={expandedKey === item.url}
-            onOpenChange={(open) =>
-              setExpandedKey(open ? item.url : null)
-            }
-          >
-            <SidebarMenuItem>
+          item.items?.length ? (
+            // Items with sub-items: expandable/collapsible sections
+            <Collapsible
+              key={item.title}
+              asChild
+              open={expandedKey === item.url}
+              onOpenChange={(open) =>
+                setExpandedKey(open ? item.url : null)
+              }
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton className="w-full justify-between">
+                    <div className="flex items-center gap-2">
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </div>
+                    <ChevronRightIcon className="size-4 transition-transform duration-200 data-[state=open]:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={activeKey === subItem.url}
+                        >
+                          <a
+                            href={subItem.url}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              onNavigate?.(subItem.url)
+                            }}
+                          >
+                            <span>{subItem.title}</span>
+                          </a>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          ) : (
+            // Items without sub-items: direct clickable navigation
+            <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
                 isActive={activeKey === item.url}
@@ -69,9 +103,6 @@ export function NavMain({
                   href={item.url}
                   onClick={(e) => {
                     e.preventDefault()
-                    // Clicking the main item: select it AND collapse
-                    // all other submenus, expanding this one.
-                    setExpandedKey(item.url)
                     onNavigate?.(item.url)
                   }}
                 >
@@ -79,40 +110,8 @@ export function NavMain({
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
-              {item.items?.length ? (
-                <>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuAction className="data-[state=open]:rotate-90">
-                      <ChevronRightIcon />
-                      <span className="sr-only">Toggle</span>
-                    </SidebarMenuAction>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={activeKey === subItem.url}
-                          >
-                            <a
-                              href={subItem.url}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                onNavigate?.(subItem.url)
-                              }}
-                            >
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </>
-              ) : null}
             </SidebarMenuItem>
-          </Collapsible>
+          )
         ))}
       </SidebarMenu>
     </SidebarGroup>

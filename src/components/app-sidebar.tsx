@@ -45,81 +45,109 @@ function NavIcon({ name }: { name: string }) {
 // key (context-pane summary, breadcrumbs) can look it up without
 // re-duplicating the data.
 //
-// Structure mirrors Outerbounds prototype-v4:
-//   - `platform` ≈ prototype "Infrastructure" (Compute, Platform,
-//     Admin), rendered under the `Platform` sidebar group.
-//   - `projects` ≈ prototype "Project" (Overview, Assets,
-//     Components), rendered under the `Projects` sidebar group.
-// Both groups are hierarchical (collapsible with sub-items), which
-// is why both use NavMain.
+// Structure matches Anaconda Admin interface:
+//   - `assetManagement` - Packages, Environments, Models, etc.
+//   - `identityAccess` - SSO, Identities, Roles
+//   - `configuration` - Compute, Image Registry, Workstations, etc.
+//   - `security` - Security & Policy items
+//   - `compliance` - Compliance/Reporting items
+//   - `platformHealth` - Platform Health items
+//   - `other` - Documentation, Support
+// All groups are hierarchical (collapsible with sub-items).
 export const navData = {
   user: {
     name: "shadcn",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  projects: [
+  dashboard: [
     {
-      title: "Overview",
-      url: "/overview",
+      title: "Dashboard",
+      url: "/dashboard",
       icon: <NavIcon name="overview" />,
       isActive: true,
-      items: [
-        { title: "Deployments", url: "/overview/deployments" },
-        { title: "Workflows", url: "/overview/workflows" },
-      ],
+      items: [],
     },
+  ],
+  assetManagement: [
     {
-      title: "Assets",
-      url: "/assets",
+      title: "Asset Management",
+      url: "/asset-management",
       icon: <NavIcon name="assets" />,
+      isActive: true,
       items: [
-        { title: "Code", url: "/assets/code" },
-        { title: "Data", url: "/assets/data" },
-        { title: "Models", url: "/assets/models" },
-      ],
-    },
-    {
-      title: "Components",
-      url: "/components",
-      icon: <NavIcon name="components" />,
-      items: [
-        { title: "Runs", url: "/components/runs" },
-        { title: "Events", url: "/components/events" },
+        { title: "Packages & Channels", url: "/asset-management/packages-channels" },
+        { title: "Environments", url: "/asset-management/environments" },
+        { title: "Model Catalog", url: "/asset-management/model-catalog" },
+        { title: "Model Servers", url: "/asset-management/model-servers" },
       ],
     },
   ],
-  platform: [
+  identityAccess: [
     {
-      title: "Compute",
-      url: "/compute",
-      icon: <NavIcon name="compute" />,
-      items: [
-        { title: "Workloads", url: "/compute/workloads" },
-        { title: "Task Queues", url: "/compute/task-queues" },
-        { title: "Pools", url: "/compute/pools" },
-        { title: "Cost Reports", url: "/compute/cost-reports" },
-      ],
-    },
-    {
-      title: "Governance",
-      url: "/governance",
+      title: "Identity and Access",
+      url: "/identity-access",
       icon: <NavIcon name="governance" />,
       items: [
-        { title: "Policies", url: "/governance/policies" },
-        { title: "Integrations", url: "/governance/integrations" },
-        { title: "Perimeters", url: "/governance/perimeters" },
+        { title: "SSO", url: "/identity-access/sso" },
+        { title: "Identities", url: "/identity-access/identities" },
+        { title: "Roles", url: "/identity-access/roles" },
       ],
     },
+  ],
+  configuration: [
     {
-      title: "Platform",
-      url: "/platform",
+      title: "Configuration",
+      url: "/configuration",
       icon: <NavIcon name="platform" />,
       items: [
-        { title: "Workstations", url: "/platform/workstations" },
-        { title: "Users", url: "/platform/users" },
-        { title: "Billing", url: "/platform/billing" },
+        { title: "Compute", url: "/configuration/compute" },
+        { title: "Image Registry", url: "/configuration/image-registry" },
+        { title: "Workstations", url: "/configuration/workstations" },
+        { title: "Perimeters", url: "/configuration/perimeters" },
       ],
+    },
+  ],
+  security: [
+    {
+      title: "Security & Policy",
+      url: "/security-policy",
+      icon: <NavIcon name="perimeter" />,
+      items: [
+        { title: "Policies", url: "/security-policy/policies" },
+        { title: "Vulnerability Management", url: "/security-policy/vulnerability-management" },
+        { title: "Audit Logs", url: "/security-policy/audit-logs" },
+      ],
+    },
+  ],
+  compliance: [
+    {
+      title: "Compliance & Reporting",
+      url: "/compliance-reporting",
+      icon: <NavIcon name="overview" />,
+      items: [],
+    },
+  ],
+  platformHealth: [
+    {
+      title: "Platform Health",
+      url: "/platform-health",
+      icon: <NavIcon name="compute" />,
+      items: [],
+    },
+  ],
+  other: [
+    {
+      title: "Documentation",
+      url: "/documentation",
+      icon: <NavIcon name="components" />,
+      items: [],
+    },
+    {
+      title: "Support",
+      url: "/support",
+      icon: <NavIcon name="components" />,
+      items: [],
     },
   ],
 }
@@ -137,10 +165,20 @@ const recentConversations: Array<{ id: string; title: string }> = [
 /** Look up a nav item's human-readable title by its `url` key. */
 export function lookupNavTitle(key: string | undefined): string | undefined {
   if (!key) return undefined
-  for (const group of [navData.projects, navData.platform]) {
-    for (const item of group) {
-      if (item.url === key) return item.title
-      const sub = item.items?.find((s) => s.url === key)
+  const allGroups = [
+    ...navData.dashboard,
+    ...navData.assetManagement,
+    ...navData.identityAccess,
+    ...navData.configuration,
+    ...navData.security,
+    ...navData.compliance,
+    ...navData.platformHealth,
+    ...navData.other,
+  ]
+  for (const item of allGroups) {
+    if (item.url === key) return item.title
+    if (item.items) {
+      const sub = item.items.find((s: any) => s.url === key)
       if (sub) return sub.title
     }
   }
@@ -149,26 +187,26 @@ export function lookupNavTitle(key: string | undefined): string | undefined {
 
 /**
  * Resolve which sidebar group the given nav key belongs to.
- * `platform` = Infrastructure-ish concerns; `projects` = the work
- * the user is doing inside a project.
  */
 export function resolveNavSection(
   key: string | undefined
-): "platform" | "projects" | "unknown" {
+): "assetManagement" | "identityAccess" | "configuration" | "security" | "compliance" | "platformHealth" | "other" | "unknown" {
   if (!key) return "unknown"
-  if (
-    navData.projects.some(
-      (i) => i.url === key || key.startsWith(i.url + "/")
-    )
-  ) {
-    return "projects"
-  }
-  if (
-    navData.platform.some(
-      (i) => i.url === key || key.startsWith(i.url + "/")
-    )
-  ) {
-    return "platform"
+
+  const sections = {
+    assetManagement: navData.assetManagement,
+    identityAccess: navData.identityAccess,
+    configuration: navData.configuration,
+    security: navData.security,
+    compliance: navData.compliance,
+    platformHealth: navData.platformHealth,
+    other: navData.other,
+  } as const
+
+  for (const [sectionName, items] of Object.entries(sections)) {
+    if (items.some((i: any) => i.url === key || key.startsWith(i.url + "/"))) {
+      return sectionName as keyof typeof sections
+    }
   }
   return "unknown"
 }
@@ -209,7 +247,7 @@ export function AppSidebar({
                 <PanelLeftIcon className="absolute inset-0 m-auto size-4 opacity-0 transition-opacity duration-150 group-hover/brand-thumb:opacity-100" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Sleep Science Inc.</span>
+                <span className="truncate font-medium">ANACONDA</span>
                 <span className="truncate text-xs">Enterprise</span>
               </div>
             </SidebarMenuButton>
@@ -229,14 +267,15 @@ export function AppSidebar({
           )}
         >
           <NavMain
-            label="Projects"
-            items={navData.projects}
-            activeKey={activeKey}
-            onNavigate={onNavigate}
-          />
-          <NavMain
-            label="Infrastructure"
-            items={navData.platform}
+            items={[
+              ...navData.dashboard,
+              ...navData.assetManagement,
+              ...navData.identityAccess,
+              ...navData.configuration,
+              ...navData.security,
+              ...navData.compliance,
+              ...navData.platformHealth,
+            ]}
             activeKey={activeKey}
             onNavigate={onNavigate}
           />
@@ -285,6 +324,18 @@ export function AppSidebar({
       </SidebarContent>
       <SidebarFooter>
         <PerimeterSwitcher />
+        <SidebarMenu>
+          {navData.other.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                onClick={() => onNavigate?.(item.url)}
+              >
+                {item.icon}
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

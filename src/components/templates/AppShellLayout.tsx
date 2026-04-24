@@ -239,15 +239,15 @@ function DefaultContextSummary() {
           Today this is a static display; the interactive picker
           from prototype-v4 will be reintroduced here. */}
       <div className="flex items-center gap-1.5 px-3">
-        {section === "platform" ? (
+        {section === "configuration" || section === "security" || section === "compliance" || section === "platformHealth" ? (
           <span className="text-sm font-medium text-foreground">
-            Your platform
+            Admin Console
           </span>
-        ) : section === "projects" ? (
+        ) : section === "assetManagement" ? (
           <>
             <FolderIcon className="size-3.5 text-muted-foreground" />
             <span className="max-w-[10rem] truncate text-sm font-medium text-foreground">
-              ob_project_starter
+              Asset Management
             </span>
             <span className="px-1 text-muted-foreground">/</span>
             <GitBranchIcon className="size-3.5 text-muted-foreground" />

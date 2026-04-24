@@ -9,6 +9,7 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
+import { ComplianceReporting, PlatformHealth } from "@/pages"
 
 /**
  * Demo harness for the three canonical templates.
@@ -83,10 +84,10 @@ function OnboardingDemo({ onDone }: { onDone: () => void }) {
 }
 
 // The default "route" when you first enter the app. Matches the
-// `url` on the Overview item in `src/components/app-sidebar.tsx`.
+// `url` on the Dashboard item in `src/components/app-sidebar.tsx`.
 // In a real app this would come from the router (useLocation,
 // Next.js pathname, etc.).
-const DEFAULT_NAV_KEY = "/overview"
+const DEFAULT_NAV_KEY = "/dashboard"
 
 function AppDemo() {
   const [actionOpen, setActionOpen] = useState(false)
@@ -99,17 +100,41 @@ function AppDemo() {
   const pageTitle =
     lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
 
+  // Render different content based on the active nav key
+  const renderMainContent = () => {
+    if (navKey === "/compliance-reporting") {
+      return <ComplianceReporting onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/platform-health") {
+      return <PlatformHealth />
+    }
+
+    // Default content for other pages
+    return (
+      <div className="p-6">
+        <p className="text-muted-foreground">
+          This is a placeholder page for {pageTitle || "Dashboard"}. Content will be added here.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <AppShellLayout
-      title={pageTitle || "Overview"}
+      title={pageTitle || "Dashboard"}
       activeKey={navKey}
       onNavigate={setNavKey}
       headerActions={
-        <Button size="sm" onClick={() => setActionOpen(true)}>
-          Manage
-        </Button>
+        navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
+          <Button size="sm" onClick={() => setActionOpen(true)}>
+            Manage
+          </Button>
+        ) : undefined
       }
     >
+      {renderMainContent()}
+
       <ActionSheet
         open={actionOpen}
         onOpenChange={setActionOpen}
