@@ -4,6 +4,8 @@ import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
 import { useAppShell } from "@/components/ui/app-shell"
+import { AnacondaGlyph } from "@/components/ui/anaconda-glyph"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -14,21 +16,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import {
-  CheckIcon,
-  ChevronsUpDownIcon,
   MessageSquareIcon,
+  PanelLeftIcon,
   PlusIcon,
-  TerminalIcon,
 } from "lucide-react"
 
 // Custom Outerbounds nav icons, sourced from the OB-nav-icons
@@ -37,6 +31,59 @@ import {
 // treatment.
 function NavIcon({ name }: { name: string }) {
   return <img src={`/brand/icons/${name}.svg`} alt="" className="size-4" />
+}
+
+/**
+ * Sidebar toggle button for the header that works outside SidebarProvider context.
+ * Uses a custom implementation to avoid layout disruption.
+ */
+function HeaderSidebarToggle() {
+  const [isOpen, setIsOpen] = React.useState(true)
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen)
+    // Trigger the keyboard shortcut that toggles the sidebar
+    const event = new KeyboardEvent('keydown', {
+      key: '.',
+      metaKey: true,
+      bubbles: true
+    })
+    window.dispatchEvent(event)
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleToggle}
+      className="h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
+    >
+      <PanelLeftIcon className="size-4" />
+    </Button>
+  )
+}
+
+/**
+ * Sidebar header content that hides Anaconda branding when collapsed
+ */
+function SidebarHeaderContent() {
+  const { state } = useSidebar()
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <div className="flex items-center gap-3">
+          <HeaderSidebarToggle />
+          {state === "expanded" && (
+            <div className="flex items-center gap-2">
+              <AnacondaGlyph className="size-5" style={{ color: '#31A824' }} />
+              <h1 className="text-lg font-semibold text-foreground">Anaconda</h1>
+            </div>
+          )}
+        </div>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
 }
 
 // Exported so any surface that needs a human label for a given nav
@@ -228,21 +275,7 @@ export function AppSidebar({
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <div className="border border-sidebar-border rounded-lg p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <TerminalIcon className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">ACME CORP</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
-              </div>
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarHeaderContent />
       </SidebarHeader>
       <SidebarContent className="relative">
         {/* Navigation view — visible in focused mode. */}
@@ -250,7 +283,7 @@ export function AppSidebar({
           data-slot="app-sidebar-nav-view"
           data-mode={mode}
           className={cn(
-            "absolute inset-0 flex flex-col gap-2 overflow-auto",
+            "absolute inset-0 flex flex-col overflow-auto",
             "transition-opacity duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
             "data-[mode=conversing]:pointer-events-none",
             "data-[mode=conversing]:opacity-0"
@@ -276,7 +309,7 @@ export function AppSidebar({
           data-slot="app-sidebar-conversations-view"
           data-mode={mode}
           className={cn(
-            "absolute inset-0 flex flex-col gap-2 overflow-auto",
+            "absolute inset-0 flex flex-col gap-1 overflow-auto",
             "transition-opacity duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
             "data-[mode=focused]:pointer-events-none",
             "data-[mode=focused]:opacity-0"
@@ -313,7 +346,6 @@ export function AppSidebar({
         </div>
       </SidebarContent>
       <SidebarFooter>
-        <PerimeterSwitcher />
         <SidebarMenu>
           {navData.other.map((item) => (
             <SidebarMenuItem key={item.title}>
@@ -331,62 +363,3 @@ export function AppSidebar({
   )
 }
 
-// Available perimeters. In a real app these come from the
-// perimeters API / user's org membership.
-const perimeters = [
-  { id: "default", name: "Default" },
-  { id: "production", name: "Production" },
-  { id: "staging", name: "Staging" },
-] as const
-
-type PerimeterId = (typeof perimeters)[number]["id"]
-
-/**
- * Sidebar-footer control that shows the active perimeter and lets
- * the user switch between them. Collapses to just the shield glyph
- * when the sidebar is in icon-only mode.
- */
-function PerimeterSwitcher() {
-  const [activeId, setActiveId] = React.useState<PerimeterId>("production")
-  const active = perimeters.find((p) => p.id === activeId) ?? perimeters[0]
-
-  return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <NavIcon name="perimeter" />
-              <span className="flex-1 truncate font-medium">
-                {active.name}
-              </span>
-              <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side="right"
-            align="end"
-            sideOffset={8}
-          >
-            {perimeters.map((p) => (
-              <DropdownMenuItem
-                key={p.id}
-                onClick={() => setActiveId(p.id)}
-              >
-                <span className="flex-1">{p.name}</span>
-                {p.id === activeId ? (
-                  <CheckIcon className="size-4" />
-                ) : null}
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-muted-foreground">
-              Configure perimeters
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  )
-}

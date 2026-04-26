@@ -9,12 +9,8 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { ChevronRightIcon } from "lucide-react"
 
@@ -45,75 +41,75 @@ export function NavMain({
   )
 
   return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {items.map((item) => (
-          item.items?.length ? (
-            // Items with sub-items: expandable/collapsible sections
+    <>
+      {items.map((item) => (
+        item.items?.length ? (
+          // Items with sub-items: expandable/collapsible eyebrow sections
+          <SidebarGroup key={item.title}>
             <Collapsible
-              key={item.title}
-              asChild
               open={expandedKey === item.url}
               onOpenChange={(open) =>
                 setExpandedKey(open ? item.url : null)
               }
             >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton className="w-full justify-between">
-                    <div className="flex items-center gap-2">
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </div>
-                    <ChevronRightIcon className="size-4 transition-transform duration-200 data-[state=open]:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={activeKey === subItem.url}
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer select-none hover:text-foreground">
+                  <span className="flex items-center justify-between w-full">
+                    <span>{item.title}</span>
+                    <ChevronRightIcon className="size-4 transition-transform duration-200 rotate-90 data-[state=open]:-rotate-90" />
+                  </span>
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenu>
+                  {item.items.map((subItem) => (
+                    <SidebarMenuItem key={subItem.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={activeKey === subItem.url}
+                      >
+                        <a
+                          href={subItem.url}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            onNavigate?.(subItem.url)
+                          }}
                         >
-                          <a
-                            href={subItem.url}
-                            onClick={(e) => {
-                              e.preventDefault()
-                              onNavigate?.(subItem.url)
-                            }}
-                          >
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
+                          {item.icon}
+                          <span>{subItem.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </CollapsibleContent>
             </Collapsible>
-          ) : (
-            // Items without sub-items: direct clickable navigation
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                isActive={activeKey === item.url}
-              >
-                <a
-                  href={item.url}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    onNavigate?.(item.url)
-                  }}
+          </SidebarGroup>
+        ) : (
+          // Items without sub-items: direct clickable navigation
+          <SidebarGroup key={item.title}>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeKey === item.url}
                 >
-                  {item.icon}
-                  <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )
-        ))}
-      </SidebarMenu>
-    </SidebarGroup>
+                  <a
+                    href={item.url}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      onNavigate?.(item.url)
+                    }}
+                  >
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )
+      ))}
+    </>
   )
 }

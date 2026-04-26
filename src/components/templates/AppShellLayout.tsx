@@ -42,6 +42,7 @@ import {
   LogOutIcon,
   PanelLeftIcon,
   RocketIcon,
+  TerminalIcon,
   Undo2Icon,
 } from "lucide-react"
 
@@ -117,63 +118,48 @@ export function AppShellLayout({
   contextConversing,
 }: AppShellLayoutProps) {
   return (
-    <>
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex h-12 items-center px-4 bg-sidebar">
-        <HeaderSidebarToggle />
-        <div className="flex items-center gap-2">
-          <AnacondaGlyph className="size-5" style={{ color: '#31A824' }} />
-          <h1 className="text-lg font-semibold text-foreground">Anaconda</h1>
-        </div>
-        <div className="ml-auto">
-          <ContextUserMenu />
-        </div>
-      </header>
-
-      {/* App Shell - positioned below header */}
-      <div className="fixed top-12 left-0 right-0 bottom-0 overflow-hidden">
-        <AppShellProvider activeKey={activeKey}>
-          <TooltipProvider delayDuration={200}>
-            <SidebarProvider defaultOpen={defaultSidebarOpen}>
-              <SidebarModeSync />
-              <AppSidebar activeKey={activeKey} onNavigate={onNavigate} />
-              <SidebarInset
-                // Strip the default `SidebarInset` card chrome (bg +
-                // rounded + shadow). Our two inner cards (ContextPane
-                // and ContentPane) are the only visible cards.
-                className="bg-transparent md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none pb-16 h-full"
-              >
-                <PaneStack className="h-full">
-                  <ContextPane>
-                    <ContextPaneSummary>
-                      {contextSummary ?? <DefaultContextSummary />}
-                    </ContextPaneSummary>
-                    <ContextPaneConversing>
-                      {contextConversing ?? <DefaultContextConversing />}
-                    </ContextPaneConversing>
-                  </ContextPane>
-                  <ContentPane>
-                    <ContentPaneHeader>
-                      {title && (
-                        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-                          {title}
-                        </h1>
-                      )}
-                      {headerActions && (
-                        <div className="ml-auto flex items-center gap-2">
-                          {headerActions}
-                        </div>
-                      )}
-                    </ContentPaneHeader>
-                    <ContentPaneBody>{children}</ContentPaneBody>
-                  </ContentPane>
-                </PaneStack>
-              </SidebarInset>
-            </SidebarProvider>
-          </TooltipProvider>
-        </AppShellProvider>
-      </div>
-    </>
+    <div className="fixed top-0 left-0 right-0 bottom-0 overflow-hidden">
+      <AppShellProvider activeKey={activeKey}>
+        <TooltipProvider delayDuration={200}>
+          <SidebarProvider defaultOpen={defaultSidebarOpen}>
+            <SidebarModeSync />
+            <AppSidebar activeKey={activeKey} onNavigate={onNavigate} />
+            <SidebarInset
+              // Strip the default `SidebarInset` card chrome (bg +
+              // rounded + shadow). Our two inner cards (ContextPane
+              // and ContentPane) are the only visible cards.
+              className="bg-transparent md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:shadow-none h-full"
+            >
+              <PaneStack className="h-full">
+                <ContextPane>
+                  <ContextPaneSummary>
+                    {contextSummary ?? <DefaultContextSummary />}
+                  </ContextPaneSummary>
+                  <ContextPaneConversing>
+                    {contextConversing ?? <DefaultContextConversing />}
+                  </ContextPaneConversing>
+                </ContextPane>
+                <ContentPane>
+                  <ContentPaneHeader>
+                    {title && (
+                      <h1 className="text-xl font-semibold tracking-tight text-foreground">
+                        {title}
+                      </h1>
+                    )}
+                    {headerActions && (
+                      <div className="ml-auto flex items-center gap-2">
+                        {headerActions}
+                      </div>
+                    )}
+                  </ContentPaneHeader>
+                  <ContentPaneBody>{children}</ContentPaneBody>
+                </ContentPane>
+              </PaneStack>
+            </SidebarInset>
+          </SidebarProvider>
+        </TooltipProvider>
+      </AppShellProvider>
+    </div>
   )
 }
 
@@ -187,35 +173,6 @@ function SidebarModeSync() {
   return null
 }
 
-/**
- * Sidebar toggle button for the header that works outside SidebarProvider context.
- * Uses a custom implementation to avoid layout disruption.
- */
-function HeaderSidebarToggle() {
-  const [isOpen, setIsOpen] = React.useState(true)
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen)
-    // Trigger the keyboard shortcut that toggles the sidebar
-    const event = new KeyboardEvent('keydown', {
-      key: '.',
-      metaKey: true,
-      bubbles: true
-    })
-    window.dispatchEvent(event)
-  }
-
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleToggle}
-      className="mr-3 h-auto w-auto p-1.5 text-muted-foreground hover:text-foreground"
-    >
-      <PanelLeftIcon className="size-4" />
-    </Button>
-  )
-}
 
 /**
  * Default context-pane summary: Ask Anaconda prompt.
@@ -225,6 +182,14 @@ function DefaultContextSummary() {
 
   return (
     <div className="flex h-full w-full items-stretch">
+      {/* ACME CORP organization info */}
+      <div className="flex items-center gap-3 px-3 text-sm text-muted-foreground">
+        <div className="flex aspect-square size-6 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+          <TerminalIcon className="size-3" />
+        </div>
+        <span className="font-medium text-foreground">ACME CORP</span>
+      </div>
+
       {/* Flexible spacer — pushes Ask Anaconda to the right edge. */}
       <div className="flex-1" />
 
@@ -262,6 +227,9 @@ function DefaultContextSummary() {
           </kbd>
         </button>
       )}
+
+      {/* Profile dropdown next to Ask Anaconda */}
+      <ContextUserMenu />
     </div>
   )
 }

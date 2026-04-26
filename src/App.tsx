@@ -9,7 +9,7 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
-import { ComplianceReporting, PlatformHealth } from "@/pages"
+import { Dashboard, ComplianceReporting, PlatformHealth } from "@/pages"
 import { CloudProviderModal } from "@/components/CloudProviderModal"
 import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
 
@@ -129,6 +129,10 @@ function AppDemo() {
 
   // Render different content based on the active nav key
   const renderMainContent = () => {
+    if (navKey === "/dashboard") {
+      return <Dashboard onNavigate={setNavKey} />
+    }
+
     if (navKey === "/compliance-reporting") {
       return <ComplianceReporting onNavigate={setNavKey} />
     }
@@ -141,7 +145,7 @@ function AppDemo() {
     return (
       <div className="p-6">
         <p className="text-muted-foreground">
-          This is a placeholder page for {pageTitle || "Dashboard"}. Content will be added here.
+          This is a placeholder page for {pageTitle}. Content will be added here.
         </p>
       </div>
     )
