@@ -9,7 +9,7 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
-import { Dashboard, ComplianceReporting, PlatformHealth } from "@/pages"
+import { Dashboard, ComplianceReporting, PlatformHealth, Policies } from "@/pages"
 import { CloudProviderModal } from "@/components/CloudProviderModal"
 import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
 
@@ -133,6 +133,10 @@ function AppDemo() {
       return <Dashboard onNavigate={setNavKey} />
     }
 
+    if (navKey === "/security-policy/policies") {
+      return <Policies onNavigate={setNavKey} />
+    }
+
     if (navKey === "/compliance-reporting") {
       return <ComplianceReporting onNavigate={setNavKey} />
     }
@@ -157,7 +161,11 @@ function AppDemo() {
       activeKey={navKey}
       onNavigate={setNavKey}
       headerActions={
-        navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
+        navKey === "/dashboard" ? (
+          <Button size="sm" onClick={() => setActionOpen(true)}>
+            Customize Dashboard
+          </Button>
+        ) : navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
           <Button size="sm" onClick={() => setActionOpen(true)}>
             Manage
           </Button>
