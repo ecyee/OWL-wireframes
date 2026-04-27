@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { CreatePolicyModal } from "@/components/CreatePolicyModal"
 import { MoreHorizontalIcon } from "lucide-react"
 
 interface PoliciesProps {
@@ -26,42 +27,42 @@ const channelPolicies = [
     id: "1",
     name: "Production Package Approval",
     description: "Requires admin approval for all packages published to production channels",
-    applied: "perimeter: production",
+    channel: "anaconda-main",
     updated: "Dec 15, 2024 at 2:30 PM",
   },
   {
     id: "2",
     name: "Open Source License Compliance",
     description: "Automatically scans and blocks packages with GPL or AGPL licenses",
-    applied: "perimeter: default",
+    channel: "conda-forge",
     updated: "Dec 12, 2024 at 9:15 AM",
   },
   {
     id: "3",
     name: "Security Vulnerability Blocking",
     description: "Prevents packages with high or critical CVE scores from being published",
-    applied: "perimeter: production",
+    channel: "anaconda-main",
     updated: "Dec 10, 2024 at 4:45 PM",
   },
   {
     id: "4",
     name: "Package Size Limits",
     description: "Enforces maximum package size limits to prevent storage bloat",
-    applied: "perimeter: default",
+    channel: "conda-forge",
     updated: "Dec 8, 2024 at 11:20 AM",
   },
   {
     id: "5",
     name: "Staging Environment Testing",
     description: "Requires successful test runs in staging before production deployment",
-    applied: "perimeter: production",
+    channel: "anaconda-staging",
     updated: "Dec 5, 2024 at 3:10 PM",
   },
   {
     id: "6",
     name: "Dependency Version Pinning",
     description: "Enforces specific version ranges for critical dependencies",
-    applied: "perimeter: default",
+    channel: "conda-forge",
     updated: "Nov 28, 2024 at 1:25 PM",
   },
 ]
@@ -159,76 +160,34 @@ const modelPolicies = [
 const computePolicies = [
   {
     id: "1",
-    name: "Resource Quotas",
-    description: "Enforces maximum CPU, memory, and GPU allocation per user/group",
-    applied: "perimeter: production",
+    name: "Resource Limits Policy - Default",
+    description: "Max 2 vCPUs, 8 GB memory per task. GPU access enabled for ML workloads.",
+    applied: "perimeter: default",
     updated: "Dec 20, 2024 at 3:15 PM",
   },
   {
     id: "2",
-    name: "Auto-scaling Rules",
-    description: "Automatically scale compute resources based on demand patterns",
-    applied: "perimeter: default",
+    name: "Resource Limits Policy - Production",
+    description: "Max 4 vCPUs, 16 GB memory per task. Restricted GPU access for production workloads.",
+    applied: "perimeter: production",
     updated: "Dec 18, 2024 at 10:30 AM",
-  },
-  {
-    id: "3",
-    name: "Cost Control Limits",
-    description: "Sets spending caps and budget alerts for compute usage",
-    applied: "perimeter: production",
-    updated: "Dec 15, 2024 at 2:45 PM",
-  },
-  {
-    id: "4",
-    name: "Idle Resource Cleanup",
-    description: "Automatically terminates idle compute instances after specified time",
-    applied: "perimeter: default",
-    updated: "Dec 12, 2024 at 4:20 PM",
-  },
-  {
-    id: "5",
-    name: "GPU Allocation Priority",
-    description: "Manages GPU resource allocation based on workload priority",
-    applied: "perimeter: production",
-    updated: "Dec 10, 2024 at 11:15 AM",
   },
 ]
 
 const securityPolicies = [
   {
     id: "1",
-    name: "Network Access Control",
-    description: "Restricts network access and defines allowed communication patterns",
-    applied: "perimeter: production",
+    name: "IAM Configuration - Default",
+    description: "Default ARN role: arn:aws:iam::851212891889:role/obp-0ttxc8-task. Mapped groups: Data Science Team, Platform Admins (324 users total).",
+    applied: "perimeter: default",
     updated: "Dec 22, 2024 at 1:30 PM",
   },
   {
     id: "2",
-    name: "Data Encryption Standards",
-    description: "Enforces encryption for data at rest and in transit",
+    name: "IAM Configuration - Production",
+    description: "Default ARN role: arn:aws:iam::851212891889:role/obp-prod-task. Mapped groups: Platform Admins, Engineering (45 users total).",
     applied: "perimeter: production",
     updated: "Dec 19, 2024 at 9:45 AM",
-  },
-  {
-    id: "3",
-    name: "Access Logging Requirements",
-    description: "Mandates comprehensive logging of all system access and operations",
-    applied: "perimeter: default",
-    updated: "Dec 16, 2024 at 3:20 PM",
-  },
-  {
-    id: "4",
-    name: "Multi-factor Authentication",
-    description: "Requires MFA for all administrative and sensitive operations",
-    applied: "perimeter: production",
-    updated: "Dec 14, 2024 at 2:10 PM",
-  },
-  {
-    id: "5",
-    name: "Vulnerability Scanning",
-    description: "Regular security scans for containers and infrastructure",
-    applied: "perimeter: default",
-    updated: "Dec 11, 2024 at 4:55 PM",
   },
 ]
 
@@ -282,6 +241,7 @@ const tabs = [
 
 export function Policies({ onNavigate }: PoliciesProps = {}) {
   const [activeTab, setActiveTab] = React.useState("channels")
+  const [createPolicyModalOpen, setCreatePolicyModalOpen] = React.useState(false)
 
   // Get the appropriate data and title based on active tab
   const getTabContent = () => {
@@ -331,14 +291,19 @@ export function Policies({ onNavigate }: PoliciesProps = {}) {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <Button className="bg-green-600 hover:bg-green-700">Create</Button>
+          <Button
+            className="bg-green-600 hover:bg-green-700"
+            onClick={() => setCreatePolicyModalOpen(true)}
+          >
+            Create
+          </Button>
         </div>
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Perimeter</TableHead>
+                <TableHead>{activeTab === "channels" ? "Channel" : "Perimeter"}</TableHead>
                 <TableHead className="text-right">Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -353,12 +318,16 @@ export function Policies({ onNavigate }: PoliciesProps = {}) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {policy.applied.startsWith("perimeter:") ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {policy.applied.replace("perimeter: ", "")}
-                      </span>
+                    {activeTab === "channels" ? (
+                      <span className="font-mono text-sm">{(policy as any).channel}</span>
                     ) : (
-                      policy.applied
+                      (policy as any).applied?.startsWith("perimeter:") ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {(policy as any).applied.replace("perimeter: ", "")}
+                        </span>
+                      ) : (
+                        (policy as any).applied || "N/A"
+                      )
                     )}
                   </TableCell>
                   <TableCell className="text-right">{policy.updated}</TableCell>
@@ -382,6 +351,12 @@ export function Policies({ onNavigate }: PoliciesProps = {}) {
           </Table>
         </div>
       </div>
+
+      {/* Create Policy Modal */}
+      <CreatePolicyModal
+        open={createPolicyModalOpen}
+        onOpenChange={setCreatePolicyModalOpen}
+      />
     </div>
   )
 }

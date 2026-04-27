@@ -134,7 +134,6 @@ function AppDemo() {
     pageTitle = (
       <div>
         <div className="text-xl font-semibold tracking-tight text-foreground">Identities</div>
-        <div className="text-sm text-muted-foreground mt-1">Set up your users and groups...</div>
       </div>
     )
   } else if (navKey.startsWith("/identity-access/identities/group/")) {

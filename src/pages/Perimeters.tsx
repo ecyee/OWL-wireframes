@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { LinkIcon, CircleIcon, FileTextIcon, CheckSquareIcon, TrashIcon, CopyIcon, LockIcon, UnlockIcon, CpuIcon, MemoryStickIcon } from "lucide-react"
+import { LinkIcon, CircleIcon, FileTextIcon, CheckSquareIcon, TrashIcon, CopyIcon, LockIcon, UnlockIcon, CpuIcon, MemoryStickIcon, PlusIcon } from "lucide-react"
 
 interface PerimetersProps {
   onNavigate?: (url: string) => void
@@ -74,7 +74,10 @@ const users = [
 const tabs = [
   { id: "humans", label: "Humans", count: 324 },
   { id: "machines", label: "Machines", count: 10 },
+  { id: "channels", label: "Channels", count: 3 },
+  { id: "integrations", label: "Integrations", count: 5 },
   { id: "policies", label: "Policies", count: null },
+
 ]
 
 export function Perimeters({ onNavigate }: PerimetersProps = {}) {
@@ -121,65 +124,6 @@ export function Perimeters({ onNavigate }: PerimetersProps = {}) {
             <h1 className="text-2xl font-semibold">{currentPerimeter.name}</h1>
           </div>
 
-          {/* Configuration Info */}
-          <div className="space-y-4">
-            <div className="flex items-start gap-2">
-              <LinkIcon className="w-4 h-4 mt-0.5 text-muted-foreground" />
-              <div className="text-sm">
-                <span className="text-muted-foreground">the default role ARN is </span>
-                <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
-                  {currentPerimeter.roleArn}
-                </code>
-                <span className="text-muted-foreground"> for tasks</span>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <CircleIcon className="w-4 h-4 mt-0.5 text-muted-foreground fill-current" />
-              <div className="text-sm">
-                <span className="text-muted-foreground">workloads can run in </span>
-                {currentPerimeter.computePools.map((pool, index) => (
-                  <span key={pool}>
-                    <code className="font-mono text-xs text-green-700 bg-green-50 px-1 py-0.5 rounded">
-                      {pool}
-                    </code>
-                    {index < currentPerimeter.computePools.length - 1 && <span className="text-muted-foreground">, </span>}
-                  </span>
-                ))}
-                <span className="text-muted-foreground"> compute pools</span>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <FileTextIcon className="w-4 h-4 mt-0.5 text-muted-foreground" />
-              <div className="text-sm">
-                <span className="text-muted-foreground">tasks will use the </span>
-                <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
-                  obptask-python:stable
-                </code>
-                <span className="text-muted-foreground"> image and </span>
-                <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
-                  {currentPerimeter.imageRegistry}
-                </code>
-                <span className="text-muted-foreground"> registry by default</span>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <CheckSquareIcon className="w-4 h-4 mt-0.5 text-muted-foreground" />
-              <div className="text-sm">
-                <span className="text-muted-foreground">tasks will default to </span>
-                <span className="font-medium">{currentPerimeter.defaultResources.vcpus} vCPUs</span>
-                <span className="text-muted-foreground"> and </span>
-                <span className="font-medium">{currentPerimeter.defaultResources.memory} GBs</span>
-                <span className="text-muted-foreground"> of memory and can access at most </span>
-                <span className="font-medium">{currentPerimeter.defaultResources.maxVcpus} vCPUs</span>
-                <span className="text-muted-foreground"> and </span>
-                <span className="font-medium">{currentPerimeter.defaultResources.maxMemory} GBs</span>
-                <span className="text-muted-foreground"> of memory.</span>
-              </div>
-            </div>
-          </div>
 
           {/* Tabs */}
           <div className="border-b">
@@ -269,6 +213,232 @@ export function Perimeters({ onNavigate }: PerimetersProps = {}) {
             </div>
           )}
 
+          {/* Channels Tab Content */}
+          {activeTab === "channels" && (
+            <div className="space-y-4">
+              {/* Add Channel Input */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter channel name to add to this perimeter"
+                  className="flex-1"
+                />
+                <Button>
+                  Add Channel
+                </Button>
+              </div>
+
+              {/* Channels Table */}
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Channel Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Packages</TableHead>
+                      <TableHead>Last Sync</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>
+                        <code className="font-mono text-sm">conda-forge</code>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">Public</Badge>
+                      </TableCell>
+                      <TableCell>1,250</TableCell>
+                      <TableCell>Apr 27, 2026</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <code className="font-mono text-sm">anaconda-main</code>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">Private</Badge>
+                      </TableCell>
+                      <TableCell>850</TableCell>
+                      <TableCell>Apr 27, 2026</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <code className="font-mono text-sm">anaconda-staging</code>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">Private</Badge>
+                      </TableCell>
+                      <TableCell>423</TableCell>
+                      <TableCell>Apr 26, 2026</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+
+          {/* Integrations Tab Content */}
+          {activeTab === "integrations" && (
+            <div className="text-left">
+              {/* Integrations Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">Integrations</h3>
+                    <p className="text-sm text-muted-foreground">
+                      API keys and integrations available for this perimeter
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
+                    <PlusIcon className="w-4 h-4 mr-1" />
+                    Add Integration
+                  </Button>
+                </div>
+
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Integration</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Last Updated</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                              <span className="text-xs font-bold">AI</span>
+                            </div>
+                            <span className="font-medium">Anthropic</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>AI/LLM</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">Connected</Badge>
+                        </TableCell>
+                        <TableCell>Dec 20, 2024</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                              <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                            </div>
+                            <span className="font-medium">Amazon S3</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>Storage</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">Connected</Badge>
+                        </TableCell>
+                        <TableCell>Dec 18, 2024</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                              <div className="w-4 h-4 bg-white rounded-full"></div>
+                            </div>
+                            <span className="font-medium">OpenAI</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>AI/LLM</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-muted-foreground">Not Connected</Badge>
+                        </TableCell>
+                        <TableCell>—</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <PlusIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                              <span className="text-sm">🤗</span>
+                            </div>
+                            <span className="font-medium">Hugging Face</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>AI/ML</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-muted-foreground">Not Connected</Badge>
+                        </TableCell>
+                        <TableCell>—</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <PlusIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+
+                      <TableRow>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                              <div className="w-4 h-4 bg-blue-600 rounded"></div>
+                            </div>
+                            <span className="font-medium">Postgres</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>Database</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">Connected</Badge>
+                        </TableCell>
+                        <TableCell>Dec 15, 2024</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <TrashIcon className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Compute Tab Content */}
+          {activeTab === "compute" && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Compute content coming soon.</p>
+            </div>
+          )}
+
           {/* Policies Tab Content */}
           {activeTab === "policies" && (
             <div className="space-y-8">
@@ -310,86 +480,6 @@ export function Perimeters({ onNavigate }: PerimetersProps = {}) {
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <CopyIcon className="h-4 w-4 text-muted-foreground" />
                     </Button>
-                  </div>
-                </div>
-              </div>
-
-
-              {/* Task Resource Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold">Task Resource</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Specifies the resource constraints for tasks running in this perimeter
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <UnlockIcon className="w-4 h-4" />
-                      <span>Not Enforced</span>
-                    </div>
-                    <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
-                      <FileTextIcon className="w-4 h-4 mr-1" />
-                      Manage
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-md">
-                    <CpuIcon className="w-5 h-5 text-muted-foreground" />
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">CPU</span>
-                      <span className="text-lg font-semibold">2</span>
-                      <span className="text-sm text-muted-foreground">vCPUs</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-md">
-                    <MemoryStickIcon className="w-5 h-5 text-muted-foreground" />
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">Memory</span>
-                      <span className="text-lg font-semibold">8</span>
-                      <span className="text-sm text-muted-foreground">GB</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Channel Policies Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold">Channels</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Policies that govern package channels and distribution
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-sm text-green-600">
-                      <LockIcon className="w-4 h-4" />
-                      <span>2 Enforced</span>
-                    </div>
-                    <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
-                      <FileTextIcon className="w-4 h-4 mr-1" />
-                      Manage
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Production Package Approval</div>
-                      <div className="text-xs text-muted-foreground">Requires admin approval for production packages</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Security Vulnerability Blocking</div>
-                      <div className="text-xs text-muted-foreground">Prevents packages with high CVE scores</div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -480,66 +570,52 @@ export function Perimeters({ onNavigate }: PerimetersProps = {}) {
                 </div>
               </div>
 
-              {/* Compute Policies Section */}
+              {/* Compute Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold">Compute</h3>
                     <p className="text-sm text-muted-foreground">
-                      Policies for compute resource management and allocation
+                      Compute resource limits and allocation for this perimeter
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-sm text-green-600">
                       <LockIcon className="w-4 h-4" />
-                      <span>3 Enforced</span>
+                      <span>Enforced</span>
                     </div>
                     <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
                       <FileTextIcon className="w-4 h-4 mr-1" />
-                      Manage
+                      Configure
                     </Button>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Resource Quotas</div>
-                      <div className="text-xs text-muted-foreground">Enforces maximum resource allocation per user/group</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Cost Control Limits</div>
-                      <div className="text-xs text-muted-foreground">Sets spending caps and budget alerts</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">GPU Allocation Priority</div>
-                      <div className="text-xs text-muted-foreground">Manages GPU resources based on workload priority</div>
-                    </div>
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
+                  <div>
+                    <div className="font-medium text-sm">Resource Limits Policy</div>
+                    <div className="text-xs text-muted-foreground">Max 2 vCPUs, 8 GB memory per task. GPU access enabled for ML workloads.</div>
                   </div>
                 </div>
               </div>
 
-              {/* Security Policies Section */}
+              {/* Security Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold">Security</h3>
                     <p className="text-sm text-muted-foreground">
-                      Security and access control policies
+                      IAM management, default ARN role, and group mappings for this perimeter
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-sm text-green-600">
                       <LockIcon className="w-4 h-4" />
-                      <span>4 Enforced</span>
+                      <span>Enforced</span>
                     </div>
                     <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
                       <FileTextIcon className="w-4 h-4 mr-1" />
-                      Manage
+                      Configure
                     </Button>
                   </div>
                 </div>
@@ -547,68 +623,13 @@ export function Perimeters({ onNavigate }: PerimetersProps = {}) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
                     <div>
-                      <div className="font-medium text-sm">Network Access Control</div>
-                      <div className="text-xs text-muted-foreground">Restricts network access and communication patterns</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Data Encryption Standards</div>
-                      <div className="text-xs text-muted-foreground">Enforces encryption for data at rest and in transit</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Multi-factor Authentication</div>
-                      <div className="text-xs text-muted-foreground">Requires MFA for administrative operations</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">Vulnerability Scanning</div>
-                      <div className="text-xs text-muted-foreground">Regular security scans for containers and infrastructure</div>
+                      <div className="font-medium text-sm">IAM Configuration</div>
+                      <div className="text-xs text-muted-foreground mb-2">Default ARN role: arn:aws:iam::851212891889:role/obp-0ttxc8-task</div>
+                      <div className="text-xs text-muted-foreground">Mapped groups: Data Science Team, Platform Admins (324 users total)</div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Integration Policies Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold">Integrations</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Policies for external integrations and API access
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-sm text-green-600">
-                      <LockIcon className="w-4 h-4" />
-                      <span>2 Enforced</span>
-                    </div>
-                    <Button variant="outline" size="sm" className="text-green-600 border-green-600 hover:bg-green-50">
-                      <FileTextIcon className="w-4 h-4 mr-1" />
-                      Manage
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">API Rate Limiting</div>
-                      <div className="text-xs text-muted-foreground">Controls API request rates and implements throttling</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-md">
-                    <div>
-                      <div className="font-medium text-sm">External Service Approval</div>
-                      <div className="text-xs text-muted-foreground">Requires approval for external service integrations</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
             </div>
           )}
         </div>

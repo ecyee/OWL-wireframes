@@ -123,8 +123,7 @@ export const navData = {
       items: [
         { title: "Packages & Channels", url: "/asset-management/packages-channels" },
         { title: "Environments", url: "/asset-management/environments" },
-        { title: "Model Catalog", url: "/asset-management/model-catalog" },
-        { title: "Model Servers", url: "/asset-management/model-servers" },
+        { title: "Models", url: "/asset-management/models" },
       ],
     },
   ],
