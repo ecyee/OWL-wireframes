@@ -160,24 +160,8 @@ export const navData = {
       items: [
         { title: "Policies", url: "/security-policy/policies" },
         { title: "Vulnerability Management", url: "/security-policy/vulnerability-management" },
-        { title: "Audit Logs", url: "/security-policy/audit-logs" },
+        { title: "Compliance & Reporting", url: "/compliance-reporting" },
       ],
-    },
-  ],
-  compliance: [
-    {
-      title: "Compliance & Reporting",
-      url: "/compliance-reporting",
-      icon: <NavIcon name="overview" />,
-      items: [],
-    },
-  ],
-  platformHealth: [
-    {
-      title: "Platform Health",
-      url: "/platform-health",
-      icon: <NavIcon name="compute" />,
-      items: [],
     },
   ],
   other: [
@@ -215,8 +199,6 @@ export function lookupNavTitle(key: string | undefined): string | undefined {
     ...navData.identityAccess,
     ...navData.configuration,
     ...navData.security,
-    ...navData.compliance,
-    ...navData.platformHealth,
     ...navData.other,
   ]
   for (const item of allGroups) {
@@ -234,7 +216,7 @@ export function lookupNavTitle(key: string | undefined): string | undefined {
  */
 export function resolveNavSection(
   key: string | undefined
-): "assetManagement" | "identityAccess" | "configuration" | "security" | "compliance" | "platformHealth" | "other" | "unknown" {
+): "assetManagement" | "identityAccess" | "configuration" | "security" | "other" | "unknown" {
   if (!key) return "unknown"
 
   const sections = {
@@ -242,8 +224,6 @@ export function resolveNavSection(
     identityAccess: navData.identityAccess,
     configuration: navData.configuration,
     security: navData.security,
-    compliance: navData.compliance,
-    platformHealth: navData.platformHealth,
     other: navData.other,
   } as const
 
@@ -295,8 +275,6 @@ export function AppSidebar({
               ...navData.identityAccess,
               ...navData.configuration,
               ...navData.security,
-              ...navData.compliance,
-              ...navData.platformHealth,
             ]}
             activeKey={activeKey}
             onNavigate={onNavigate}

@@ -9,7 +9,7 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
-import { Dashboard, ComplianceReporting, PlatformHealth, Policies, OrgSettings, Notifications, Identities, GroupDetail, Workstations } from "@/pages"
+import { Dashboard, ComplianceReporting, Policies, OrgSettings, Notifications, Identities, GroupDetail, Perimeters, Workstations } from "@/pages"
 import { CloudProviderModal } from "@/components/CloudProviderModal"
 import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
 import { CreateGroupDrawer } from "@/components/CreateGroupDrawer"
@@ -170,16 +170,16 @@ function AppDemo() {
       return <GroupDetail groupId={groupId} onNavigate={setNavKey} />
     }
 
+    if (navKey === "/configuration/perimeters") {
+      return <Perimeters onNavigate={setNavKey} />
+    }
+
     if (navKey === "/configuration/workstations") {
       return <Workstations onNavigate={setNavKey} onCreateWorkstation={() => setCreateWorkstationDrawerOpen(true)} />
     }
 
     if (navKey === "/compliance-reporting") {
       return <ComplianceReporting onNavigate={setNavKey} />
-    }
-
-    if (navKey === "/platform-health") {
-      return <PlatformHealth />
     }
 
     // Default content for other pages
@@ -213,7 +213,7 @@ function AppDemo() {
           <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateWorkstationDrawerOpen(true)}>
             Create
           </Button>
-        ) : navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
+        ) : navKey !== "/compliance-reporting" ? (
           <Button size="sm" onClick={() => setActionOpen(true)}>
             Manage
           </Button>
