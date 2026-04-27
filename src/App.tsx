@@ -9,10 +9,11 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
-import { Dashboard, ComplianceReporting, PlatformHealth, Policies, OrgSettings, Notifications, Identities, Groups } from "@/pages"
+import { Dashboard, ComplianceReporting, PlatformHealth, Policies, OrgSettings, Notifications, Identities, GroupDetail, Workstations } from "@/pages"
 import { CloudProviderModal } from "@/components/CloudProviderModal"
 import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
 import { CreateGroupDrawer } from "@/components/CreateGroupDrawer"
+import { CreateWorkstationDrawer } from "@/components/CreateWorkstationDrawer"
 
 /**
  * Demo harness for the three canonical templates.
@@ -122,6 +123,7 @@ function AppDemo() {
   const [clusterName, setClusterName] = useState("production-us-east-1")
   const [navKey, setNavKey] = useState<string>(DEFAULT_NAV_KEY)
   const [createGroupDrawerOpen, setCreateGroupDrawerOpen] = useState(false)
+  const [createWorkstationDrawerOpen, setCreateWorkstationDrawerOpen] = useState(false)
 
   // Derive a page title from the active nav key's last segment.
   // In a routed app this would come from route config.
@@ -135,13 +137,8 @@ function AppDemo() {
         <div className="text-sm text-muted-foreground mt-1">Set up your users and groups...</div>
       </div>
     )
-  } else if (navKey === "/identity-access/groups") {
-    pageTitle = (
-      <div>
-        <div className="text-xl font-semibold tracking-tight text-foreground">Groups</div>
-        <div className="text-sm text-muted-foreground mt-1">Organize users into groups for easier management...</div>
-      </div>
-    )
+  } else if (navKey.startsWith("/identity-access/identities/group/")) {
+    pageTitle = "Group Details"
   } else {
     pageTitle = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
   }
@@ -165,11 +162,16 @@ function AppDemo() {
     }
 
     if (navKey === "/identity-access/identities") {
-      return <Identities onNavigate={setNavKey} />
+      return <Identities onNavigate={setNavKey} onCreateGroup={() => setCreateGroupDrawerOpen(true)} />
     }
 
-    if (navKey === "/identity-access/groups") {
-      return <Groups onNavigate={setNavKey} onCreateGroup={() => setCreateGroupDrawerOpen(true)} />
+    if (navKey.startsWith("/identity-access/identities/group/")) {
+      const groupId = navKey.split("/").pop() || ""
+      return <GroupDetail groupId={groupId} onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/configuration/workstations") {
+      return <Workstations onNavigate={setNavKey} onCreateWorkstation={() => setCreateWorkstationDrawerOpen(true)} />
     }
 
     if (navKey === "/compliance-reporting") {
@@ -205,11 +207,12 @@ function AppDemo() {
             <Button variant="outline" size="sm">Invite Users</Button>
             <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateGroupDrawerOpen(true)}>Create Group</Button>
           </div>
-        ) : navKey === "/identity-access/groups" ? (
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm">Import Groups</Button>
-            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateGroupDrawerOpen(true)}>Create Group</Button>
-          </div>
+        ) : navKey.startsWith("/identity-access/identities/group/") ? (
+          <Button variant="outline" size="sm">Edit Group</Button>
+        ) : navKey === "/configuration/workstations" ? (
+          <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateWorkstationDrawerOpen(true)}>
+            Create
+          </Button>
         ) : navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
           <Button size="sm" onClick={() => setActionOpen(true)}>
             Manage
@@ -250,6 +253,12 @@ function AppDemo() {
       <CreateGroupDrawer
         open={createGroupDrawerOpen}
         onOpenChange={setCreateGroupDrawerOpen}
+      />
+
+      {/* Create Workstation Drawer */}
+      <CreateWorkstationDrawer
+        open={createWorkstationDrawerOpen}
+        onOpenChange={setCreateWorkstationDrawerOpen}
       />
     </AppShellLayout>
   )
