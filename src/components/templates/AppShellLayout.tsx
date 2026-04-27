@@ -133,7 +133,7 @@ export function AppShellLayout({
               <PaneStack className="h-full">
                 <ContextPane>
                   <ContextPaneSummary>
-                    {contextSummary ?? <DefaultContextSummary />}
+                    {contextSummary ?? <DefaultContextSummary onNavigate={onNavigate} />}
                   </ContextPaneSummary>
                   <ContextPaneConversing>
                     {contextConversing ?? <DefaultContextConversing />}
@@ -177,7 +177,7 @@ function SidebarModeSync() {
 /**
  * Default context-pane summary: Ask Anaconda prompt.
  */
-function DefaultContextSummary() {
+function DefaultContextSummary({ onNavigate }: { onNavigate?: (url: string) => void }) {
   const { mode, setMode } = useAppShell()
 
   return (
@@ -229,7 +229,7 @@ function DefaultContextSummary() {
       )}
 
       {/* Profile dropdown next to Ask Anaconda */}
-      <ContextUserMenu />
+      <ContextUserMenu onNavigate={onNavigate} />
     </div>
   )
 }
@@ -268,7 +268,7 @@ function DefaultContextConversing() {
  * only the circular avatar is shown; the name and email are
  * exposed inside the dropdown.
  */
-function ContextUserMenu() {
+function ContextUserMenu({ onNavigate }: { onNavigate?: (url: string) => void }) {
   const user = navData.user
   // 2-letter initials fallback. The stock `/avatars/shadcn.jpg`
   // URL doesn't exist in public/, so we skip AvatarImage entirely
@@ -321,9 +321,28 @@ function ContextUserMenu() {
             <RocketIcon />
             Onboarding
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onNavigate?.("/notifications")}>
             <BellIcon />
             Notifications
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => onNavigate?.("/org-settings")}>
+            <FolderIcon />
+            Org Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <GitBranchIcon />
+            User Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <TerminalIcon />
+            Billing
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <RocketIcon />
+            Licenses
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

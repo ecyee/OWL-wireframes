@@ -134,8 +134,8 @@ export const navData = {
       url: "/identity-access",
       icon: <NavIcon name="governance" />,
       items: [
-        { title: "SSO", url: "/identity-access/sso" },
         { title: "Identities", url: "/identity-access/identities" },
+        { title: "Groups", url: "/identity-access/groups" },
         { title: "Roles", url: "/identity-access/roles" },
       ],
     },

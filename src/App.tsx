@@ -9,9 +9,10 @@ import {
   OnboardingLayout,
   type OnboardingStep,
 } from "@/components/templates"
-import { Dashboard, ComplianceReporting, PlatformHealth, Policies } from "@/pages"
+import { Dashboard, ComplianceReporting, PlatformHealth, Policies, OrgSettings, Notifications, Identities, Groups } from "@/pages"
 import { CloudProviderModal } from "@/components/CloudProviderModal"
 import { ConfigurePerimeterModal } from "@/components/ConfigurePerimeterModal"
+import { CreateGroupDrawer } from "@/components/CreateGroupDrawer"
 
 /**
  * Demo harness for the three canonical templates.
@@ -120,12 +121,30 @@ function AppDemo() {
   const [actionOpen, setActionOpen] = useState(false)
   const [clusterName, setClusterName] = useState("production-us-east-1")
   const [navKey, setNavKey] = useState<string>(DEFAULT_NAV_KEY)
+  const [createGroupDrawerOpen, setCreateGroupDrawerOpen] = useState(false)
 
   // Derive a page title from the active nav key's last segment.
   // In a routed app this would come from route config.
   const lastSegment = navKey.split("/").filter(Boolean).pop() ?? ""
-  const pageTitle =
-    lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
+  let pageTitle: React.ReactNode
+
+  if (navKey === "/identity-access/identities") {
+    pageTitle = (
+      <div>
+        <div className="text-xl font-semibold tracking-tight text-foreground">Identities</div>
+        <div className="text-sm text-muted-foreground mt-1">Set up your users and groups...</div>
+      </div>
+    )
+  } else if (navKey === "/identity-access/groups") {
+    pageTitle = (
+      <div>
+        <div className="text-xl font-semibold tracking-tight text-foreground">Groups</div>
+        <div className="text-sm text-muted-foreground mt-1">Organize users into groups for easier management...</div>
+      </div>
+    )
+  } else {
+    pageTitle = lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
+  }
 
   // Render different content based on the active nav key
   const renderMainContent = () => {
@@ -135,6 +154,22 @@ function AppDemo() {
 
     if (navKey === "/security-policy/policies") {
       return <Policies onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/org-settings") {
+      return <OrgSettings onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/notifications") {
+      return <Notifications onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/identity-access/identities") {
+      return <Identities onNavigate={setNavKey} />
+    }
+
+    if (navKey === "/identity-access/groups") {
+      return <Groups onNavigate={setNavKey} onCreateGroup={() => setCreateGroupDrawerOpen(true)} />
     }
 
     if (navKey === "/compliance-reporting") {
@@ -165,6 +200,16 @@ function AppDemo() {
           <Button size="sm" onClick={() => setActionOpen(true)}>
             Customize Dashboard
           </Button>
+        ) : navKey === "/identity-access/identities" ? (
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm">Invite Users</Button>
+            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateGroupDrawerOpen(true)}>Create Group</Button>
+          </div>
+        ) : navKey === "/identity-access/groups" ? (
+          <div className="flex gap-3">
+            <Button variant="outline" size="sm">Import Groups</Button>
+            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setCreateGroupDrawerOpen(true)}>Create Group</Button>
+          </div>
         ) : navKey !== "/compliance-reporting" && navKey !== "/platform-health" ? (
           <Button size="sm" onClick={() => setActionOpen(true)}>
             Manage
@@ -200,6 +245,12 @@ function AppDemo() {
           </div>
         </div>
       </ActionSheet>
+
+      {/* Create Group Drawer */}
+      <CreateGroupDrawer
+        open={createGroupDrawerOpen}
+        onOpenChange={setCreateGroupDrawerOpen}
+      />
     </AppShellLayout>
   )
 }
